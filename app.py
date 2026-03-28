@@ -43,9 +43,9 @@ st.markdown(
 @st.cache_data(show_spinner=False)
 def load_data(csv_bytes: bytes | None = None) -> pd.DataFrame:
     if csv_bytes is None:
-        df = pd.read_csv(DATA_PATH)
+        df = pd.read_csv(DATA_PATH, dtype={"source": "string", "reason": "string"})
     else:
-        df = pd.read_csv(pd.io.common.BytesIO(csv_bytes))
+        df = pd.read_csv(pd.io.common.BytesIO(csv_bytes), dtype={"source": "string", "reason": "string"})
 
     df["logTimestamp"] = pd.to_datetime(
         df["logTimestamp"], format="%b %d, %Y @ %H:%M:%S.%f", errors="coerce"
@@ -55,7 +55,7 @@ def load_data(csv_bytes: bytes | None = None) -> pd.DataFrame:
     df["faction"] = df["faction"].fillna("unknown")
     df["reason"] = df["reason"].fillna("unknown")
     df["type"] = df["reason"]
-    df["source"] = df["source"].fillna("unknown")
+    df["source"] = df["source"].fillna("unknown").astype("string")
     return df
 
 
@@ -229,15 +229,7 @@ def type_line_figure(df: pd.DataFrame, title_y: str) -> go.Figure:
         height=320,
         margin={"l": 10, "r": 10, "t": 10, "b": 10},
         yaxis_title=title_y,
-        legend_title_text="Type",
-        legend={
-            "orientation": "h",
-            "yanchor": "bottom",
-            "y": -0.35,
-            "xanchor": "left",
-            "x": 0,
-            "font": {"size": 11},
-        },
+        showlegend=False,
     )
     return fig
 
@@ -350,6 +342,13 @@ top_type_names = top_types["type"].head(top_type_count).tolist()
 type_slice = filtered[filtered["type"].isin(top_type_names)].copy()
 type_points_chart = grouped_timeseries_long(type_slice, time_grain, "type", "Points")
 type_activity_chart = grouped_timeseries_long(type_slice, time_grain, "type", "Activities")
+type_label_map = unique_short_labels(top_type_names, limit=22)
+type_legend = pd.DataFrame(
+    {
+        "type": top_type_names,
+        "display": [type_label_map[name] for name in top_type_names],
+    }
+)
 
 left, right = st.columns(2)
 
@@ -371,6 +370,8 @@ time_left, time_right = st.columns(2)
 with time_left:
     st.subheader("Points over time by type")
     st.plotly_chart(type_line_figure(type_points_chart, "Points"), use_container_width=True)
+    with st.expander("Type labels in chart", expanded=False):
+        st.dataframe(type_legend, use_container_width=True, hide_index=True)
 
 with time_right:
     st.subheader("Activities over time by faction")
