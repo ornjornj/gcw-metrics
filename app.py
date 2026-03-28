@@ -1,6 +1,5 @@
 from pathlib import Path
 
-import altair as alt
 import pandas as pd
 import streamlit as st
 
@@ -69,6 +68,17 @@ def grouped_totals(df: pd.DataFrame, primary: str, split_by: str) -> pd.DataFram
         .sort_values("pointValue", ascending=False)
     )
     return result.rename(columns={primary: "group", split_by: "split"})
+
+
+def chart_frame(df: pd.DataFrame, index_col: str, column_col: str, value_col: str) -> pd.DataFrame:
+    frame = df.pivot_table(
+        index=index_col,
+        columns=column_col,
+        values=value_col,
+        aggfunc="sum",
+        fill_value=0,
+    )
+    return frame.sort_index()
 
 
 st.title("GCW Point Breakdown Explorer")
@@ -149,33 +159,15 @@ left, right = st.columns(2)
 
 with left:
     st.subheader("Points over time")
-    st.altair_chart(
-        alt.Chart(timeline)
-        .mark_line(point=True)
-        .encode(
-            x=alt.X("day:T", title="Day"),
-            y=alt.Y("pointValue:Q", title="Points"),
-            color=alt.Color("faction:N", title="Faction"),
-            tooltip=["day:T", "faction:N", alt.Tooltip("pointValue:Q", format=",.1f")],
-        )
-        .properties(height=350),
-        use_container_width=True,
-    )
+    timeline_chart = chart_frame(timeline, "day", "faction", "pointValue")
+    st.line_chart(timeline_chart, height=350, use_container_width=True)
 
 with right:
     st.subheader(f"Totals by {primary_dimension}")
-    st.altair_chart(
-        alt.Chart(breakdown)
-        .mark_bar()
-        .encode(
-            x=alt.X("pointValue:Q", title="Points"),
-            y=alt.Y("group:N", sort="-x", title=primary_dimension.title()),
-            color=alt.Color("split:N", title="Split"),
-            tooltip=["group:N", "split:N", alt.Tooltip("pointValue:Q", format=",.1f")],
-        )
-        .properties(height=350),
-        use_container_width=True,
-    )
+    breakdown_chart = chart_frame(breakdown, "group", "split", "pointValue")
+    breakdown_chart["Total"] = breakdown_chart.sum(axis=1)
+    breakdown_chart = breakdown_chart.sort_values("Total", ascending=False).drop(columns="Total").head(20)
+    st.bar_chart(breakdown_chart, height=350, use_container_width=True)
 
 table_left, table_right = st.columns(2)
 
