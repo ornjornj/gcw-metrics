@@ -14499,7 +14499,7 @@ logTimestamp,faction,planet,regionName,reason,pointValue,multiplier,source
 "Mar 15, 2026 @ 11:58:41.000",Imperial,rori,gcw_region_rori_3,factional presence,15,1,137136191368 (from 137136191368)
 "Mar 15, 2026 @ 11:59:18.000",Rebel,talus,gcw_region_talus_3,factional presence,14,1,147791703585 (from 147791703585)
 "Mar 15, 2026 @ 11:59:45.000",Rebel,rori,gcw_region_rori_3,factional presence,12,1,140253454397 (from 140253454397)
-"Mar 15, 2026 @ 12:00:03.000",Rebel,naboo,gcw_planet_naboo,an Imperial Crackdown,-899560,8.9956,null (from 184645757808)
+"Mar 15, 2026 @ 12:00:03.000",Rebel,naboo,gcw_planet_naboo,an Imperial Crackdown,-100000,8.9956,null (from 184645757808)
 "Mar 15, 2026 @ 12:00:03.000",Rebel,tatooine,gcw_planet_tatooine,a Rebel Uprising,200000,1,null (from 184645757808)
 "Mar 15, 2026 @ 12:00:03.000",Rebel,lok,gcw_planet_lok,an Imperial Crackdown,-100000,1,null (from 184645757808)
 "Mar 15, 2026 @ 12:00:38.000",Imperial,talus,gcw_region_talus_3,factional presence,10,1,143393224697 (from 143393224697)
